@@ -5,8 +5,8 @@
   "dependencies": {
     "flow-bin": "^0.84.0",
     "node-sass": "^4.9.4",
-    "react": "^16.6.0",
-    "react-dom": "^16.6.0",
+    "react": "^16.7.0-alpha.0",
+    "react-dom": "^16.7.0-alpha.0",
     "react-scripts": "2.0.5"
   },
   "scripts": {
