@@ -30,4 +30,6 @@ sudo dpkg -i /Downloads/code_1.28.2-1539735992_amd64.deb -y
 
 sudo apt-get install -f -y
 
+sudo apt-get install golang-go
+
 export PATH=$PATH:/usr/local/go/bin
