@@ -81,6 +81,15 @@ func main() {
         fmt.Println("Phone: " + gyms[i].Phone)
         fmt.Println("Lat: " + strconv.FormatFloat(gyms[i].Lat, 'f', 6, 64))
         fmt.Println("Long: " + strconv.FormatFloat(gyms[i].Long, 'f', 6, 64))
+
+	sqlStatement := `
+        INSERT INTO openmatdata (id, name, days_hours, street, phone, latitude, longitude)
+        VALUES($1, $2, $3, $4, $5, $6, $7)`
+	_, err = db.Exec(sqlStatement, gyms[i].ID, gyms[i].Name, gyms[i].DaysHours, gyms[i].Street, gyms[i].Phone, gyms[i].Lat, gyms[i].Long)
+
+	if err != nil {
+            panic(err)
+        }
     }
 
 }
