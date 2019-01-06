@@ -33,3 +33,7 @@ sudo apt-get install -f -y
 sudo apt-get install golang-go
 
 export PATH=$PATH:/usr/local/go/bin
+
+go get github.com/lib/pq
+
+go get -u github.com/go-chi/chi
