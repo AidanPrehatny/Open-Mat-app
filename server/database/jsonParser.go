@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"strconv"
 	_ "github.com/lib/pq"
-	"server/foo"
 )
 
 const (
@@ -19,7 +18,7 @@ const (
 	dbname   = "openmatws"
 )
 
-type GymSummary[]struct {
+type Gyms[]struct {
 	ID        string  `json:"id"`
 	Name      string  `json:"name"`
 	DaysHours string  `json:"days/hours"`
@@ -49,7 +48,7 @@ func connectDatabase() *sql.DB {
 	return db
 }
 
-func insertIntoDB(db *sql.DB, gyms GymSummary) {
+func insertIntoDB(db *sql.DB, gyms Gyms) {
 	for i := 0; i < len(gyms); i++ {
 		fmt.Println("ID: " + gyms[i].ID)
 		fmt.Println("Name: " + gyms[i].Name)
@@ -87,15 +86,12 @@ func main() {
 	// read json as a byte array
 	byteArray, _ := ioutil.ReadAll(jsonFile)
 
-	fmt.Println(byteArray)
-
 	// we initialize are gyms array
 	var gyms Gyms
 
 	// we unmarshal our byteArray which contains
 	// our jsonFile's content into 'gyms' which is defined above
-	json.Unmarshal(byteArray, &gyms);
+	json.Unmarshal(byteArray, &gyms)
 	
-	insertIntoDB(db, gyms);
-	webServer(db)
+	insertIntoDB(db, gyms)
 }
