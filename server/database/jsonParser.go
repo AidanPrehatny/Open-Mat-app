@@ -1,4 +1,4 @@
-package main
+package populate
 
 import (
 	"database/sql"
@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"strconv"
 	_ "github.com/lib/pq"
+	"server/foo"
 )
 
 const (
@@ -17,6 +18,16 @@ const (
 	password = "postgres"
 	dbname   = "openmatws"
 )
+
+type GymSummary[]struct {
+	ID        string  `json:"id"`
+	Name      string  `json:"name"`
+	DaysHours string  `json:"days/hours"`
+	Street    string  `json:"street"`
+	Phone     string  `json:"phone"`
+	Lat       float64 `json:"lat"`
+	Long      float64 `json:"long"`
+}
 
 func connectDatabase() *sql.DB {
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s "+
@@ -38,13 +49,31 @@ func connectDatabase() *sql.DB {
 	return db
 }
 
+func insertIntoDB(db *sql.DB, gyms GymSummary) {
+	for i := 0; i < len(gyms); i++ {
+		fmt.Println("ID: " + gyms[i].ID)
+		fmt.Println("Name: " + gyms[i].Name)
+		fmt.Println("DaysHours: " + gyms[i].DaysHours)
+		fmt.Println("Street: " + gyms[i].Street)
+		fmt.Println("Phone: " + gyms[i].Phone)
+		fmt.Println("Lat: " + strconv.FormatFloat(gyms[i].Lat, 'f', 6, 64))
+		fmt.Println("Long: " + strconv.FormatFloat(gyms[i].Long, 'f', 6, 64))
+
+		sqlStatement := `
+			INSERT INTO openmatdata (id, name, days_hours, street, phone, latitude, longitude)
+			VALUES($1, $2, $3, $4, $5, $6, $7)
+		`
+		db.Exec(sqlStatement, gyms[i].ID, gyms[i].Name, gyms[i].DaysHours, gyms[i].Street, gyms[i].Phone, gyms[i].Lat, gyms[i].Long)
+	}
+}
+
 func main() {
 	var db *sql.DB
 	db = connectDatabase()
 
-	defer db.Close()
+	// defer db.Close()
 	// open json file
-	jsonFile, err := os.Open("../mat-data.json")
+	jsonFile, err := os.Open("mat-data.json")
 
 	if err != nil {
 		fmt.Println(err)
@@ -58,40 +87,15 @@ func main() {
 	// read json as a byte array
 	byteArray, _ := ioutil.ReadAll(jsonFile)
 
-
-	type Gyms[]struct {
-		ID        string  `json:"id"`
-		Name      string  `json:"name"`
-		DaysHours string  `json:"days/hours"`
-		Street    string  `json:"street"`
-		Phone     string  `json:"phone"`
-		Lat       float64 `json:"lat"`
-		Long      float64 `json:"long"`
-	}
+	fmt.Println(byteArray)
 
 	// we initialize are gyms array
 	var gyms Gyms
 
 	// we unmarshal our byteArray which contains
 	// our jsonFile's content into 'gyms' which is defined above
-	json.Unmarshal(byteArray, &gyms)
-
-	for i := 0; i < len(gyms); i++ {
-		fmt.Println("ID: " + gyms[i].ID)
-		fmt.Println("Name: " + gyms[i].Name)
-		fmt.Println("DaysHours: " + gyms[i].DaysHours)
-		fmt.Println("Street: " + gyms[i].Street)
-		fmt.Println("Phone: " + gyms[i].Phone)
-		fmt.Println("Lat: " + strconv.FormatFloat(gyms[i].Lat, 'f', 6, 64))
-		fmt.Println("Long: " + strconv.FormatFloat(gyms[i].Long, 'f', 6, 64))
-
-		sqlStatement := `
-        INSERT INTO openmatdata (id, name, days_hours, street, phone, latitude, longitude)
-        VALUES($1, $2, $3, $4, $5, $6, $7)`
-		_, err = db.Exec(sqlStatement, gyms[i].ID, gyms[i].Name, gyms[i].DaysHours, gyms[i].Street, gyms[i].Phone, gyms[i].Lat, gyms[i].Long)
-
-		if err != nil {
-			panic(err)
-		}
-	}
+	json.Unmarshal(byteArray, &gyms);
+	
+	insertIntoDB(db, gyms);
+	webServer(db)
 }
