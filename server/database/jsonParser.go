@@ -1,4 +1,4 @@
-package populate
+package jsonParser
 
 import (
 	"database/sql"
